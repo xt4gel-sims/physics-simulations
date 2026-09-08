@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ηλεκτροστατικό πεδίο Coulomb — Ένταση και Δύναμη</title>
+<style>
+:root{
+  --bg:#f3f7fc; --panel:#fff; --ink:#11244f; --muted:#667085;
+  --blue:#1358e8; --red:#e52b2b; --border:#9fc0ec; --gold:#fff5c9;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:#111827}
+.app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+header{
+  background:#173d73;color:white;padding:10px 18px;
+  display:flex;justify-content:space-between;align-items:center;gap:20px
+}
+header h1{margin:0;font-size:clamp(21px,2.15vw,34px);font-weight:800}
+header .hint{font-style:italic;line-height:1.45;font-size:16px;max-width:370px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 305px;gap:10px;padding:10px}
+.stage{position:relative;background:white;border:1px solid var(--border);border-radius:13px;min-height:580px;overflow:hidden}
+#scene{display:block;width:100%;height:100%;min-height:580px;touch-action:none;user-select:none}
+.tip{
+  position:absolute;left:14px;bottom:14px;background:#f4f1ff;border:1px solid #a99cff;
+  color:#1636cf;border-radius:9px;padding:9px 12px;font-size:15px;line-height:1.45;pointer-events:none
+}
+.side{display:flex;flex-direction:column;gap:9px}
+.panel{background:white;border:1px solid var(--border);border-radius:13px;padding:11px 12px}
+.panel h2{font-size:17px;color:#11244f;margin:0 0 9px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+label{font-size:14px}
+input[type=range]{width:100%}
+.ends{display:flex;justify-content:space-between;font-size:12px;color:#667085}
+.value{font-size:15px;margin:6px 0}
+.checks label{display:block;margin:7px 0}
+button{border:1px solid #9aa7b5;background:#f8fafc;border-radius:9px;padding:7px 10px;cursor:pointer}
+.values{background:var(--gold);border-color:#deb943}
+.math{font-family:Cambria Math,serif;font-size:17px;line-height:1.45}
+footer{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:0 10px 10px}
+.formula{background:white;border:1px solid var(--border);border-radius:13px;padding:9px 14px}
+.formula h3{margin:0 0 7px;color:#102d67;font-size:15px}
+.eq{font-family:Cambria Math,serif;font-size:23px;text-align:center}
+.small{font-size:12px;color:#667085;margin-top:4px}
+@media(max-width:980px){
+  main{grid-template-columns:1fr}
+  footer{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>Ηλεκτροστατικό πεδίο Coulomb: Ένταση και Δύναμη</h1>
+  <div class="hint">Σύρετε το δοκιμαστικό φορτίο και παρατηρήστε τα διανύσματα E και F.</div>
+</header>
+
+<main>
+  <section class="stage" id="stage">
+    <svg id="scene" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="gradPos" cx="35%" cy="30%">
+          <stop offset="0%" stop-color="#ffe0e0"/>
+          <stop offset="65%" stop-color="#ef6d6d"/>
+          <stop offset="100%" stop-color="#c61f1f"/>
+        </radialGradient>
+        <radialGradient id="gradNeg" cx="35%" cy="30%">
+          <stop offset="0%" stop-color="#e7f1ff"/>
+          <stop offset="65%" stop-color="#6d9bec"/>
+          <stop offset="100%" stop-color="#194fae"/>
+        </radialGradient>
+        <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,8 L10,4 z" fill="#1358e8" fill-opacity="0.48"/>
+        </marker>
+        <marker id="arrowRed" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,8 L10,4 z" fill="#e52b2b" fill-opacity="0.48"/>
+        </marker>
+      </defs>
+
+      <line id="rLine" x1="370" y1="310" x2="700" y2="310" stroke="#6b7280" stroke-width="2.4" stroke-dasharray="9 7"/>
+      <text id="rLabel" x="535" y="292" font-family="Cambria Math" font-size="30" font-style="italic">r</text>
+
+      <g id="Qgroup">
+        <circle id="Qcircle" cx="340" cy="310" r="42" fill="url(#gradPos)" stroke="#a51b1b" stroke-width="1.5"/>
+        <text id="QsignText" x="340" y="324" text-anchor="middle" font-size="56" font-weight="700">+</text>
+        <text x="340" y="380" text-anchor="middle" font-family="Cambria Math" font-size="28" font-style="italic">Q</text>
+      </g>
+
+      <g id="qgroup" style="cursor:grab">
+        <circle id="qcircle" cx="730" cy="310" r="18" fill="url(#gradPos)" stroke="#a51b1b" stroke-width="1.5"/>
+        <text id="qsignText" x="730" y="317" text-anchor="middle" font-size="24" font-weight="700">+</text>
+        <text id="qLabel" x="730" y="345" text-anchor="middle" font-family="Cambria Math" font-size="22" font-style="italic">q</text>
+      </g>
+
+      <g id="Egroup">
+        <line id="Earrow" x1="760" y1="292" x2="880" y2="292" stroke="#1358e8" stroke-opacity="0.48" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowBlue)"/>
+        <text id="Elabel" x="895" y="284" fill="#1358e8" font-family="Cambria Math" font-size="31" font-style="italic">E⃗</text>
+        <text id="EvalLabel" x="895" y="305" fill="#334155" font-size="13"></text>
+      </g>
+
+      <g id="Fgroup">
+        <line id="Farrow" x1="760" y1="328" x2="865" y2="328" stroke="#e52b2b" stroke-opacity="0.48" stroke-width="5" stroke-linecap="round" marker-end="url(#arrowRed)"/>
+        <text id="Flabel" x="880" y="348" fill="#e52b2b" font-family="Cambria Math" font-size="31" font-style="italic">F⃗</text>
+        <text id="FvalLabel" x="880" y="369" fill="#334155" font-size="13"></text>
+      </g>
+
+      <g id="scale">
+        <line x1="820" y1="555" x2="920" y2="555" stroke="#111" stroke-width="2"/>
+        <line x1="820" y1="546" x2="820" y2="564" stroke="#111" stroke-width="2"/>
+        <line x1="920" y1="546" x2="920" y2="564" stroke="#111" stroke-width="2"/>
+        <text x="870" y="540" text-anchor="middle" font-size="16">0.5 m</text>
+      </g>
+    </svg>
+    <div class="tip">Σύρετε το δοκιμαστικό φορτίο <i>q</i>.<br>Αλλάξτε το πρόσημο ή το μέτρο των φορτίων από τα δεξιά.</div>
+  </section>
+
+  <aside class="side">
+    <div class="panel">
+      <h2>Φορτίο πηγή Q</h2>
+      <div class="row">
+        <label><input type="radio" name="Qsign" value="1" checked> Θετικό (+)</label>
+        <label><input type="radio" name="Qsign" value="-1"> Αρνητικό (−)</label>
+      </div>
+      <div class="value">|Q| = <span id="Qval">5.0</span> μC</div>
+      <input id="Qmag" type="range" min="0.1" max="50" value="5" step="0.1">
+      <div class="ends"><span>0.1 μC</span><span>50 μC</span></div>
+    </div>
+
+    <div class="panel">
+      <h2>Δοκιμαστικό φορτίο q</h2>
+      <div class="row">
+        <label><input type="radio" name="qsign" value="1" checked> Θετικό (+)</label>
+        <label><input type="radio" name="qsign" value="-1"> Αρνητικό (−)</label>
+      </div>
+      <div class="value">|q| = <span id="qval">1.0</span> nC</div>
+      <input id="qmag" type="range" min="0.1" max="100" value="1" step="0.1">
+      <div class="ends"><span>0.1 nC</span><span>100 nC</span></div>
+    </div>
+
+    <div class="panel checks">
+      <h2>Επιλογές προβολής</h2>
+      <label><input id="showE" type="checkbox" checked> Διάνυσμα έντασης πεδίου E</label>
+      <label><input id="showF" type="checkbox" checked> Διάνυσμα δύναμης Coulomb F</label>
+      <label><input id="showR" type="checkbox" checked> Διακεκομμένη γραμμή σύνδεσης</label>
+      <label><input id="showLabels" type="checkbox" checked> Εμφάνιση τιμών δίπλα στα διανύσματα</label>
+      <button id="reset">↻ Επαναφορά θέσης q</button>
+    </div>
+
+    <div class="panel values">
+      <h2>Τρέχουσες τιμές</h2>
+      <div class="math">
+        r = <span id="rOut">0.800</span> m<br>
+        Q = <span id="QOut">+5.0 μC</span><br>
+        q = <span id="qOut">+1.0 nC</span><br>
+        E = <span id="EOut"></span><br>
+        F = <span id="FOut"></span><br>
+        <span id="relation" style="color:#1747d1"></span>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div class="formula">
+    <h3>Ένταση ηλεκτροστατικού πεδίου (Coulomb)</h3>
+    <div class="eq">E = k · |Q| / r²</div>
+    <div class="small">Η φορά του E καθορίζεται από το πρόσημο του Q.</div>
+  </div>
+  <div class="formula">
+    <h3>Δύναμη Coulomb στο δοκιμαστικό φορτίο</h3>
+    <div class="eq">F⃗ = q E⃗</div>
+    <div class="small">Για q&gt;0 ίδια φορά με E⃗, για q&lt;0 αντίθετη.</div>
+  </div>
+  <div class="formula">
+    <h3>Σταθερά Coulomb</h3>
+    <div class="eq">k = 9 × 10⁹ N·m²/C²</div>
+  </div>
+</footer>
+</div>
+
+<script>
+(() => {
+  const k = 9e9;
+  const svg = document.getElementById('scene');
+  const qgroup = document.getElementById('qgroup');
+  const Qcircle = document.getElementById('Qcircle');
+  const qcircle = document.getElementById('qcircle');
+  const QsignText = document.getElementById('QsignText');
+  const qsignText = document.getElementById('qsignText');
+  const qLabel = document.getElementById('qLabel');
+  const rLine = document.getElementById('rLine');
+  const rLabel = document.getElementById('rLabel');
+  const Egroup = document.getElementById('Egroup');
+  const Fgroup = document.getElementById('Fgroup');
+  const Earrow = document.getElementById('Earrow');
+  const Farrow = document.getElementById('Farrow');
+  const Elabel = document.getElementById('Elabel');
+  const Flabel = document.getElementById('Flabel');
+  const EvalLabel = document.getElementById('EvalLabel');
+  const FvalLabel = document.getElementById('FvalLabel');
+  const $ = id => document.getElementById(id);
+
+  const state = {
+    Qsign:1,qsign:1,Qmag:5,qmag:1,
+    qx:730,qy:310,dragging:false,
+    showE:true,showF:true,showR:true,showLabels:true
+  };
+  const Qx=340,Qy=310,Qrad=42,qrad=18;
+  const pxPerMeter=500; // 0.5 m = 250 px
+
+  function superscript(n){
+    const map={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+    return String(n).split('').map(c=>map[c]||c).join('');
+  }
+  function sci(x,unit){
+    if(!isFinite(x)||x===0) return '0 '+unit;
+    const e=Math.floor(Math.log10(Math.abs(x)));
+    const m=x/Math.pow(10,e);
+    return m.toFixed(2)+' × 10'+superscript(e)+' '+unit;
+  }
+  function signed(v,unit){ return (v>=0?'+':'−')+Math.abs(v).toFixed(1)+' '+unit; }
+
+  function setLine(line,x1,y1,x2,y2){
+    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+  }
+  function setText(el,x,y){
+    el.setAttribute('x',x); el.setAttribute('y',y);
+  }
+
+  function update(){
+    const dx=state.qx-Qx,dy=state.qy-Qy;
+    const d=Math.max(80,Math.hypot(dx,dy));
+    const ux=dx/d,uy=dy/d;
+    const r=d/pxPerMeter;
+    const Q=state.Qsign*state.Qmag*1e-6;
+    const q=state.qsign*state.qmag*1e-9;
+    const E=k*Math.abs(Q)/(r*r);
+    const F=Math.abs(q)*E;
+
+    // charges
+    qcircle.setAttribute('cx',state.qx); qcircle.setAttribute('cy',state.qy);
+    qsignText.setAttribute('x',state.qx); qsignText.setAttribute('y',state.qy+7);
+    setText(qLabel,state.qx,state.qy+35);
+
+    Qcircle.setAttribute('fill',state.Qsign>0?'url(#gradPos)':'url(#gradNeg)');
+    Qcircle.setAttribute('stroke',state.Qsign>0?'#a51b1b':'#123f8d');
+    QsignText.textContent=state.Qsign>0?'+':'−';
+
+    qcircle.setAttribute('fill',state.qsign>0?'url(#gradPos)':'url(#gradNeg)');
+    qcircle.setAttribute('stroke',state.qsign>0?'#a51b1b':'#123f8d');
+    qsignText.textContent=state.qsign>0?'+':'−';
+
+    // r
+    setLine(rLine,Qx+ux*Qrad,Qy+uy*Qrad,state.qx-ux*qrad,state.qy-uy*qrad);
+    setText(rLabel,(Qx+state.qx)/2+8,(Qy+state.qy)/2-12);
+    rLine.style.display=state.showR?'':'none';
+    rLabel.style.display=state.showR?'':'none';
+
+    // directions
+    const Eux=ux*(state.Qsign>0?1:-1);
+    const Euy=uy*(state.Qsign>0?1:-1);
+    const Fux=Eux*(state.qsign>0?1:-1);
+    const Fuy=Euy*(state.qsign>0?1:-1);
+
+    const lenE=Math.max(80,Math.min(190,100+(Math.log10(Math.max(E,1))-4)*22));
+    const lenF=Math.max(70,Math.min(180,95+(Math.log10(Math.max(F,1e-12))+5)*20));
+
+    const nEx=-Euy,nEy=Eux;
+    const nFx=-Fuy,nFy=Fux;
+    const eStartX=state.qx+Eux*(qrad+8)+nEx*16;
+    const eStartY=state.qy+Euy*(qrad+8)+nEy*16;
+    const fStartX=state.qx+Fux*(qrad+8)+nFx*(-16);
+    const fStartY=state.qy+Fuy*(qrad+8)+nFy*(-16);
+
+    setLine(Earrow,eStartX,eStartY,eStartX+Eux*lenE,eStartY+Euy*lenE);
+    setText(Elabel,eStartX+Eux*lenE+14,eStartY+Euy*lenE-8);
+    setText(EvalLabel,eStartX+Eux*lenE+14,eStartY+Euy*lenE+13);
+    EvalLabel.textContent=state.showLabels?sci(E,'N/C'):'';
+
+    setLine(Farrow,fStartX,fStartY,fStartX+Fux*lenF,fStartY+Fuy*lenF);
+    setText(Flabel,fStartX+Fux*lenF+14,fStartY+Fuy*lenF+8);
+    setText(FvalLabel,fStartX+Fux*lenF+14,fStartY+Fuy*lenF+29);
+    FvalLabel.textContent=state.showLabels?sci(F,'N'):'';
+
+    Egroup.style.display=state.showE?'':'none';
+    Fgroup.style.display=state.showF?'':'none';
+
+    $('Qval').textContent=state.Qmag.toFixed(1);
+    $('qval').textContent=state.qmag.toFixed(1);
+    $('rOut').textContent=r.toFixed(3);
+    $('QOut').textContent=signed(state.Qsign*state.Qmag,'μC');
+    $('qOut').textContent=signed(state.qsign*state.qmag,'nC');
+    $('EOut').textContent=sci(E,'N/C');
+    $('FOut').textContent=sci(F,'N');
+    $('relation').textContent=state.qsign>0?'F = qE (ίδια φορά)':'F = qE (αντίθετη φορά)';
+  }
+
+  function svgPoint(evt){
+    const pt=svg.createSVGPoint();
+    pt.x=evt.clientX; pt.y=evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  qgroup.addEventListener('pointerdown',e=>{
+    state.dragging=true;
+    qgroup.setPointerCapture(e.pointerId);
+    qgroup.style.cursor='grabbing';
+  });
+  qgroup.addEventListener('pointermove',e=>{
+    if(!state.dragging) return;
+    const p=svgPoint(e);
+    let x=Math.max(qrad+8,Math.min(1000-qrad-8,p.x));
+    let y=Math.max(qrad+8,Math.min(620-qrad-8,p.y));
+    let dx=x-Qx,dy=y-Qy,d=Math.hypot(dx,dy),minD=Qrad+qrad+28;
+    if(d<minD){
+      if(d<1){dx=1;dy=0;d=1}
+      x=Qx+dx/d*minD; y=Qy+dy/d*minD;
+    }
+    state.qx=x; state.qy=y; update();
+  });
+  function stop(e){
+    state.dragging=false;qgroup.style.cursor='grab';
+    try{qgroup.releasePointerCapture(e.pointerId)}catch(_){}
+  }
+  qgroup.addEventListener('pointerup',stop);
+  qgroup.addEventListener('pointercancel',stop);
+
+  $('Qmag').addEventListener('input',e=>{state.Qmag=+e.target.value;update()});
+  $('qmag').addEventListener('input',e=>{state.qmag=+e.target.value;update()});
+  document.querySelectorAll('input[name=Qsign]').forEach(el=>el.addEventListener('change',e=>{state.Qsign=+e.target.value;update()}));
+  document.querySelectorAll('input[name=qsign]').forEach(el=>el.addEventListener('change',e=>{state.qsign=+e.target.value;update()}));
+  ['showE','showF','showR','showLabels'].forEach(id=>$(id).addEventListener('change',e=>{state[id]=e.target.checked;update()}));
+  $('reset').addEventListener('click',()=>{state.qx=730;state.qy=310;update()});
+
+  update();
+})();
+</script>
+</body>
+</html>
